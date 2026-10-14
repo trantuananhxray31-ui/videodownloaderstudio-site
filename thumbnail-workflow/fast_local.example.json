@@ -1,0 +1,12 @@
+{
+  "series_folder": "Tên phim [HG_123]",
+  "source_verified": false,
+  "approved_templates": false,
+  "video_folder": "D:/VDS/reup/Tên phim [HG_123]",
+  "output_root": "D:/VDS/THUMBNAILS",
+  "font": "C:/Windows/Fonts/arialbd.ttf",
+  "templates": {
+    "16x9": {"path": "D:/VDS/templates/Ten-phim_16x9.jpg", "badge_box": [0.75, 0.025, 0.23, 0.13]},
+    "9x16": {"path": "D:/VDS/templates/Ten-phim_9x16.jpg", "badge_box": [0.64, 0.02, 0.34, 0.075]}
+  }
+}

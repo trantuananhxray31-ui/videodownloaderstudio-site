@@ -1,5 +1,7 @@
 # Thumbnail phim tiếng Việt
 
+> **Workflow hiện hành đã đổi:** dùng [README.vds.md](README.vds.md) và [CHATGPT_HANDOFF.md](CHATGPT_HANDOFF.md). Thiết kế mẫu chung rồi dùng code thay số tập, không AI từng ảnh. Phần bên dưới là tài liệu legacy API OCR/edit, giữ để tham khảo; không phải entrypoint mới.
+
 Workflow riêng cho `videodownloaderstudio-site`, không sửa website. GitHub lưu code/skill; ChatGPT điều phối và hỗ trợ duyệt; worker Python dùng OpenAI API và Google Drive OAuth để chạy pipeline. Đăng nhập ChatGPT/Drive connector không tự cấp API key hay token cho worker.
 
 ## Đầu ra

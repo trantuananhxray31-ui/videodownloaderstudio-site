@@ -1,0 +1,6 @@
+Pillow>=11,<13
+openai>=2,<3
+google-api-python-client>=2,<3
+google-auth>=2,<3
+google-auth-oauthlib>=1,<2
+jsonschema>=4,<5

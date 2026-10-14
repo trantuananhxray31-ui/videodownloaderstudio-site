@@ -1,0 +1,10 @@
+{
+  "output_folder_id": "1fvctF1zgqrGL6UNVtjBDH5RU_y_GfJ37",
+  "source_folder_id": "",
+  "vision_model": "gpt-4.1-mini",
+  "image_model": "gpt-image-1",
+  "font": "C:/Windows/Fonts/arialbd.ttf",
+  "max_attempts": 3,
+  "jpeg_quality": 92,
+  "max_bytes": 2000000
+}

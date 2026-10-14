@@ -114,7 +114,10 @@ def encode_episode(base: Image.Image, badge: list, font_path: str, episode: int,
     rect = tuple(round(v) for v in (x * w, y * h, (x + bw) * w, (y + bh) * h))
     label = f"TẬP {episode:03d}" + (f" • P{part:03d}" if part else "")
     for size in range(int(bh * h * .65), 17, -1):
-        font = cache.setdefault(size, ImageFont.truetype(font_path, size))
+        font = cache.get(size)
+        if font is None:
+            font = ImageFont.truetype(font_path, size)
+            cache[size] = font
         stroke = max(2, size // 18)
         bounds = draw.textbbox((0, 0), label, font=font, stroke_width=stroke)
         if bounds[2] - bounds[0] <= (rect[2] - rect[0]) * .88 and bounds[3] - bounds[1] <= (rect[3] - rect[1]) * .8:
@@ -203,6 +206,9 @@ def render(config_path: Path) -> dict:
             assets[name] = {"md5": md5(raw), "bytes": len(raw)}
             count_created += action == "created"
             count_skipped += action == "skipped"
+    actual_images = {p.name for p in folder.glob("*.jpg")}
+    if actual_images != set(assets):
+        raise ValueError("Unexpected JPEGs in the destination folder; inspect before sync")
     # No video is assigned an inferred episode number. Gaps are reported only.
     result = {"series_folder": job["series_folder"], "video_count": len(keys), "missing_video_episode_numbers": missing_episodes,
               "expected_jpegs": len(keys) * 2 + 2, "created": count_created,
@@ -239,7 +245,10 @@ def sync_with_rclone(result: dict, remote_root: str) -> dict:
     local_dir = Path(result["output_folder"])
     target = remote_root.rstrip("/") + "/" + result["series_folder"]
     expected = result["files"]
-    existing = remote_files(target)  # failure stops; never assume a missing/unreadable folder is empty
+    # Verify the configured Drive root before creating a new movie subfolder.
+    remote_files(remote_root)
+    subprocess.run(["rclone", "mkdir", target], check=True)
+    existing = remote_files(target)
     for name, spec in expected.items():
         if name not in existing:
             continue

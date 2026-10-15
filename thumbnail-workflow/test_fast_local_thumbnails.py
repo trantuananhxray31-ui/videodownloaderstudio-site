@@ -75,6 +75,40 @@ class FastLocalTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             m.render(self.config)
 
+    def test_reup_nested_episode_folders_and_ignore_shorts(self):
+        for n in (1, 2):
+            folder = self.video / f"Tap_{n:03d}"
+            folder.mkdir()
+            (folder / f"Tap_{n:03d}_vi.mp4").write_bytes(b"video")
+            shorts = folder / "Shorts"
+            shorts.mkdir()
+            (shorts / f"Tap_{n:03d}_clip.mp4").write_bytes(b"shorts")
+        result = m.render(self.config)
+        self.assertEqual(result["video_count"], 2)
+        self.assertEqual(result["expected_jpegs"], 6)
+        self.assertEqual(result["missing_video_episode_numbers"], [])
+        self.assertEqual(m.render(self.config)["verified_existing"], 6)
+
+    def test_subtitle_only_final_folder_reported_missing(self):
+        for n in (1, 2):
+            folder = self.video / f"Tập {n:03d}_hg_123"
+            folder.mkdir()
+            (folder / f"Tập {n:03d}_vi.mp4").write_bytes(b"video")
+        pending = self.video / "Tập 003_hg_123"
+        pending.mkdir()
+        (pending / "Tập 003_vi.srt").write_text("subtitles")
+        result = m.render(self.config)
+        self.assertEqual(result["expected_jpegs"], 6)
+        self.assertEqual(result["missing_video_episode_numbers"], [3])
+        self.assertFalse((Path(result["output_folder"]) / "TAP_003_9x16.jpg").exists())
+
+    def test_episode_parent_filename_mismatch_stops(self):
+        folder = self.video / "Tap_001"
+        folder.mkdir()
+        (folder / "Tap_002_vi.mp4").write_bytes(b"bad")
+        with self.assertRaises(ValueError):
+            m.render(self.config)
+
     def test_unexpected_jpg_blocks_sync(self):
         (self.video / "Tập 001.mp4").write_bytes(b"x")
         result = m.render(self.config)

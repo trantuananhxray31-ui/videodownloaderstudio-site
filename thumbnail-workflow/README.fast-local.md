@@ -6,7 +6,7 @@
 
 Entrypoint: `fast_local_thumbnails.py` (chỉ cần Pillow), không dùng `workflow.py` AI/OCR và không phụ thuộc dữ liệu tạm trong @1.
 
-1. Duyệt từng thư mục phim trong `reup`, **đối chiếu video thật** (không lấy từ danh sách thumbnail) và giữ nguyên HG ID. Mỗi thư mục phim dùng cấu hình JSON riêng. Nếu có phần/tập trùng hoặc video không có số tập rõ ràng, dừng thay vì đoán.
+1. Duyệt từng thư mục phim trong `reup`, **đối chiếu video thật** (không lấy từ danh sách thumbnail) và giữ nguyên HG ID. Mỗi thư mục phim dùng cấu hình JSON riêng. Quét MP4 trực tiếp trong thư mục phim hoặc trực tiếp trong thư mục con `Tap_001` / `Tập 001_*` (không quét video trong `Shorts`, `.vds` hay thư mục sâu hơn). Nếu số tập trên tên video khác tên thư mục, hoặc trùng/không thể xác định, dừng thay vì đoán. Thư mục tập chỉ có SRT/TXT được báo thiếu MP4 và **không tạo thumbnail giả**.
 2. Chọn **2 ảnh mẫu riêng của đúng bộ phim**, mẫu ngang 1920×1080 và dọc 1080×1920; có thể truy tìm ảnh gốc trong thư mục tải/ảnh gốc hoặc Drive. Kiểm tra poster khớp phim, xác nhận `source_verified` và `approved_templates` **chỉ sau khi thật sự duyệt**.
 3. Trên **máy có lưu trữ bền vững**, chạy một chương trình Pillow nhân bản ảnh mẫu và ghi nhãn số tập. 100 tập → 202 JPG gồm 2 ảnh PHIM. Không gọi AI cho từng ảnh, không bắt buộc chia phiên 180 giây.
 4. Lưu đầy đủ JPG theo tên `TAP_001_16x9.jpg`, `TAP_001_9x16.jpg`, `PHIM_16x9.jpg` và `PHIM_9x16.jpg` trong `THUMBNAILS/<tên phim>`. Manifest nằm ở `THUMBNAILS/.thumbnail-state`, **ngoài thư mục ảnh** để không làm VDS nhận nhầm. Khi chạy lại, cùng MD5 được bỏ qua; khác MD5 dừng, không tự ghi đè/xóa.
@@ -39,6 +39,10 @@ py fast_local_thumbnails.py --jobs-dir jobs --sync --remote "drive:THUMBNAILS"
 ```
 
 **Không chạy tự động với tất cả phim khi chưa có mẫu đã duyệt của từng phim.** Job sai có thể gán ảnh phim này cho phim khác.
+
+## Đối chiếu trường hợp thực tế
+
+Cấu trúc `reup/<phim>/Tap_001/Tap_001_vi.mp4` được hỗ trợ từ bản cập nhật; không cần gom video về một thư mục. Với `reup/<phim>/Tập 053.../` chỉ có phụ đề, số 053 được ghi vào danh sách `missing_video_episode_numbers` và không được cấp ảnh cho video không tồn tại. Mẫu bìa của mỗi bộ phải được kiểm tra khớp nội dung phim và duyệt trước khi chuyển `approved_templates` sang `true`.
 
 ## Khác biệt với luồng cũ
 

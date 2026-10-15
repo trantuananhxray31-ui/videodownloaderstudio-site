@@ -50,33 +50,56 @@ def path_from(config_dir: Path, value: str) -> Path:
 
 
 def inventory(video_dir: Path) -> tuple[list[tuple[int, int]], list[int]]:
+    """Scan MP4s at root or one level down in explicitly numbered episode folders.
+
+    Ignore Shorts/.vds/cache descendants; never infer episodes from file-list order.
+    Flag numbered folders without an actual playable video.
+    """
     if not video_dir.is_dir():
         raise ValueError(f"Video folder missing: {video_dir}")
     videos = sorted(p for p in video_dir.iterdir() if p.is_file() and p.suffix.lower() in EXTS)
+    episode_folders: set[int] = set()
+    for directory in sorted(video_dir.iterdir()):
+        if not directory.is_dir() or directory.name.startswith("."):
+            continue
+        folder_match = EP_PATTERN.search(unicodedata.normalize("NFC", directory.name))
+        if not folder_match:
+            continue
+        episode = int(next(part for part in folder_match.groups() if part is not None))
+        if not 1 <= episode <= 999:
+            raise ValueError(f"Invalid episode folder: {directory.name}")
+        episode_folders.add(episode)
+        videos.extend(sorted(p for p in directory.iterdir() if p.is_file() and p.suffix.lower() in EXTS))
     if not videos:
-        raise ValueError(f"No videos in {video_dir}")
+        raise ValueError(f"No videos in {video_dir}; numbered folders may contain subtitles only")
     numbers: dict[tuple[int, int], str] = {}
     unresolved = []
     for p in videos:
         m = EP_PATTERN.search(unicodedata.normalize("NFC", p.stem))
         if not m:
-            unresolved.append(p.name)
+            unresolved.append(str(p.relative_to(video_dir)))
             continue
         n = int(next(x for x in m.groups() if x is not None))
         part_match = PART_PATTERN.search(p.stem)
         part = int(part_match.group(1)) if part_match else 0
         if not (1 <= n <= 999 and 0 <= part <= 999):
-            unresolved.append(p.name)
+            unresolved.append(str(p.relative_to(video_dir)))
             continue
+        if p.parent != video_dir:
+            folder_match = EP_PATTERN.search(unicodedata.normalize("NFC", p.parent.name))
+            if folder_match and n != int(next(x for x in folder_match.groups() if x is not None)):
+                raise ValueError(f"Episode folder disagrees with video name: {p}")
         key = (n, part)
         if key in numbers:
-            raise ValueError(f"Duplicate episode/part {key}: {numbers[key]} vs {p.name}")
-        numbers[key] = p.name
+            raise ValueError(f"Duplicate episode/part {key}: {numbers[key]} vs {p}")
+        numbers[key] = str(p.relative_to(video_dir))
     if unresolved:
         raise ValueError("Unresolved video episode names: " + ", ".join(unresolved[:10]))
     keys = sorted(numbers)
-    missing = sorted(set(range(1, max(k[0] for k in keys) + 1)) - {k[0] for k in keys})
+    highest = max({n for n, _ in keys} | episode_folders)
+    missing = sorted(set(range(1, highest + 1)) - {n for n, _ in keys})
     return keys, missing
+
 
 
 def target_name(episode: int, part: int, ratio: str) -> str:

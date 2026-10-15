@@ -1,0 +1,7 @@
+{
+  "film": "Tên bộ phim",
+  "assets": [
+    {"kind": "PHIM", "file_id": "REPLACE_WITH_POSTER_DRIVE_ID"},
+    {"kind": "TAP", "episode": 1, "file_id": "REPLACE_WITH_EPISODE_IMAGE_DRIVE_ID"}
+  ]
+}

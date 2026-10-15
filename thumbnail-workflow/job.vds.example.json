@@ -1,0 +1,15 @@
+{
+  "mode": "have_original",
+  "series_folder": "Tên thư mục bộ giống bên video [HG_123]",
+  "source": {"verified": false, "page_url": "", "image_drive_file_id": ""},
+  "drive_root_id": "1fvctF1zgqrGL6UNVtjBDH5RU_y_GfJ37",
+  "source_folder_id": "",
+  "inventory_complete": false,
+  "unresolved": [],
+  "episodes": [{"episode": 1, "part": 0, "source_file_id": ""}],
+  "font": "C:/Windows/Fonts/arialbd.ttf",
+  "templates": {
+    "16x9": {"path": "template_16x9.png", "badge_box": [0.75, 0.025, 0.23, 0.13]},
+    "9x16": {"path": "template_9x16.png", "badge_box": [0.64, 0.02, 0.34, 0.075]}
+  }
+}
